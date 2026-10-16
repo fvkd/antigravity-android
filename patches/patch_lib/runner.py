@@ -37,6 +37,7 @@ GROUP_MODULES = [
     ("resolv", "resolv"),
     ("sigill", "sigill"),
     ("failfast", "failfast"),
+    ("pty_shell", "pty_shell"),
     # The core's OAuth success URL is left intact so the browser shows the real
     # "authentication successful" page, which then deep-links to the app. The
     # app registers antigravity://oauth-success for that (see the manifest).

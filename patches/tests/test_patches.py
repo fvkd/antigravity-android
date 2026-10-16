@@ -18,7 +18,10 @@ from groups.auth.selftest import _selftest as auth_selftest  # noqa: E402
 from groups.resolv import signatures as resolv_sig  # noqa: E402
 from groups.resolv import analyze as resolv_analyze  # noqa: E402
 from groups.auth import signatures as auth_sig  # noqa: E402
-from groups.auth import analyze as auth_analyze  # noqa: E402
+from groups.auth import analyze as auth_analyze
+from groups.pty_shell.selftest import _selftest as pty_shell_selftest
+from groups.pty_shell import signatures as pty_shell_sig
+from groups.pty_shell import analyze as pty_shell_analyze  # noqa: E402
 from groups.gates import analyze as gates_analyze  # noqa: E402
 
 
@@ -28,6 +31,9 @@ class RunnerContractTest(unittest.TestCase):
             ("eligibility", "gates"),
             ("seccomp", "syscalls"),
             ("resolv", "resolv"),
+            ("sigill", "sigill"),
+            ("failfast", "failfast"),
+            ("pty_shell", "pty_shell"),
         ])
 
     def test_every_group_exposes_run(self):
@@ -99,6 +105,15 @@ class ResolvTest(unittest.TestCase):
         n = resolv_analyze.apply_inplace(data)
         self.assertEqual(n[0], 2)
         self.assertEqual(bytes(data).count(resolv_sig.REPLACEMENT), 2)
+
+
+class PtyShellTest(unittest.TestCase):
+    def test_selftest(self):
+        self.assertTrue(pty_shell_selftest())
+
+    def test_lengths(self):
+        self.assertEqual(len(pty_shell_sig.TARGET), 9)
+        self.assertEqual(len(pty_shell_sig.REPLACEMENT), 9)
 
 
 class AuthTest(unittest.TestCase):

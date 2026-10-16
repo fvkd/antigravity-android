@@ -60,6 +60,23 @@ public final class ShellBridgeInstaller {
             writeScript(sh, "#!/system/bin/sh\n# AGY fallback shell\nexec /system/bin/sh \"$@\"\n");
         }
         writeTorchShims(bin, context);
+
+        // Ensure ~/.profile and ~/.mkshrc shims exist so /system/bin/sh delegates to runtime/bin/bash
+        if (context != null) {
+            File filesDir = context.getFilesDir();
+            File profile = new File(filesDir, ".profile");
+            File mkshrc = new File(filesDir, ".mkshrc");
+            String forwarder = "#!/system/bin/sh\n"
+                    + "if [ -x \"" + bin.getAbsolutePath() + "/bash\" ]; then\n"
+                    + "    exec \"" + bin.getAbsolutePath() + "/bash\" \"$@\"\n"
+                    + "fi\n";
+            if (!profile.isFile()) {
+                writeScript(profile, forwarder);
+            }
+            if (!mkshrc.isFile()) {
+                writeScript(mkshrc, forwarder);
+            }
+        }
     }
 
     public static synchronized void writeTorchShims(File bin, android.content.Context context) {

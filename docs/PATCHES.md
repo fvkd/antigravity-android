@@ -56,6 +56,13 @@ patches/
 - **Patch:** `antigravity://auth-success?app=%s#############` (46 bytes, padded with `#` URL fragment markers).
 - **Guards:** Ensures critical authentication endpoints (`oauth-callback`, `accounts.google.com/o/oauth2/auth`) remain unaltered.
 
+### E. PTY Terminal Shell Path Rewrite (`groups/pty_shell`)
+- **Problem:** Google's `language_server` core hardcodes `/bin/bash` when spawning integrated PTY terminal sessions via `exebox`. On Android, `/bin` is a symlink to `/system/bin`, which lacks a native `bash` binary (`stat /bin/bash: no such file or directory`).
+- **Solution:** Length-preserving string rewrite (9 bytes -> 9 bytes):
+  - Raw: `/bin/bash` (9 bytes)
+  - Patch: `/bin///sh` (9 bytes, resolving to `/system/bin/sh`)
+  - At startup, `ShellBridgeInstaller.java` provisions `.profile` and `.mkshrc` forwarders so `/system/bin/sh` automatically delegates execution to the user environment (`runtime/bin/bash`).
+
 ---
 
 ## 3. Extending the Patch Pipeline
